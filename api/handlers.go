@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/hex"
 	"errors"
 	"net/http"
 	"time"
@@ -14,8 +15,8 @@ import (
 
 /*----------WALLET RESPONSE----------*/
 type WalletResponse struct {
-	ID      uuid.UUID `json:"id"`
-	Balance int64     `json:"balance"`
+	ID      string `json:"id"`
+	Balance int64  `json:"balance"`
 }
 
 func (response WalletResponse) Render(w http.ResponseWriter, r *http.Request) error {
@@ -23,8 +24,9 @@ func (response WalletResponse) Render(w http.ResponseWriter, r *http.Request) er
 }
 
 func NewWalletResponse(w wallets.Wallet) WalletResponse {
+	bin, _ := w.ID.MarshalBinary()
 	return WalletResponse{
-		ID:      w.ID,
+		ID:      hex.EncodeToString(bin),
 		Balance: w.Balance,
 	}
 }
