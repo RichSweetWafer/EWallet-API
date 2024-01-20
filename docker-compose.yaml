@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=RootPassword
+      - MONGO_INITDB_DATABASE=EWallet
+    # ports:
+      # - '127.0.0.1:27017:27017'
+      # - '127.0.0.1:27018:27018'
+      # - '127.0.0.1:27019:27019'
+    volumes:
+      - ./mongo/data:/data/db:rw
+      - ./mongo/init/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+  ewallet:
+    image: ewallet
+    container_name: ewallet
+    restart: always
+    depends_on:
+      - mongo
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: dev
+    environment:
+      - PORT=3000
+      - DATABASE_URL=mongodb://root:RootPassword@mongo:27017/?authSource=admin
+      - DATABASE_NAME=EWallet
+      - COLLECTION_NAME=wallets
+    ports:
+      - '0.0.0.0:3000:3000'
